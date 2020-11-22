@@ -3,14 +3,14 @@ from rest_framework import filters, status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.decorators import api_view
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+# from rest_framework.decorators import api_view
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import generics
 
 from member.api.serializer import UserSerializer
-
+from member.permission import UpdateSelfOnly
 
 class MemberRegisterView(CreateAPIView):
     """Concrete view for creating member instances"""
@@ -28,20 +28,34 @@ class MemberRegisterView(CreateAPIView):
 
 class MemberLisAPIView(ListAPIView):
     """
+    View to Retrieve a listview of the member/user model
+    Only authenticated user can access the list
     """
+    print (f"\n\n Made it to the MemberLisAPIView \n\n")
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 class MemberRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     """
+    View to Retrieve, Update, or Destroy a single user model
+    User must be authenticated and the user itself make the changes
     """
+    print (f"\n\n Made it to the MemberRetrieveUpdateDDestroyAPIView\n\n")
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, UpdateSelfOnly]
 
 
 class CustomAuthToken(ObtainAuthToken):
-
+    """
+    View to retrieve authentication token when user/pw is provided.
+    Expands ObtainAuthToken model to update the response to include username (and other info)
+    """
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
