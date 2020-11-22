@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,13 +38,14 @@ class UserSerializer(serializers.ModelSerializer):
             email = None
         else:
             email = validated_data['email']
+
         user = User.objects.create_user(
                     email=email, 
                     username=self.validated_data['username'],
                     password=self.validated_data['password']
-                )       
+                )  
         return user
-
+    
     def update(self, instance, validated_data):
         """
         Method called when User instance is updated
