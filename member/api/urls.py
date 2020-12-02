@@ -10,6 +10,7 @@ router = DefaultRouter()
 
 
 urlpatterns = [
+    path('login/', views.CustomAuthToken.as_view()),
     path('register/', views.MemberRegisterView.as_view()),
     path('api-token-auth/', views.CustomAuthToken.as_view(), name='api-token-auth'),
     path('<pk>/', views.MemberRetrieveUpdateDestroyAPIView.as_view()),
